@@ -1,52 +1,72 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Search, Filter, SlidersHorizontal, Download, Share2, Star, StarOff, Briefcase, GraduationCap, MapPin } from 'lucide-react';
 
-const candidates = [
-  {
-    id: 1,
-    name: 'Sarah Wilson',
-    role: 'Senior Software Engineer',
-    experience: '8 years',
-    education: 'M.S. Computer Science',
-    location: 'San Francisco, CA',
-    skills: ['React', 'Node.js', 'Python', 'AWS'],
-    matchScore: 95,
-    availability: 'Immediate',
-    image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2.25&w=256&h=256&q=80'
-  },
-  {
-    id: 2,
-    name: 'Michael Chen',
-    role: 'Product Manager',
-    experience: '6 years',
-    education: 'MBA',
-    location: 'New York, NY',
-    skills: ['Product Strategy', 'Agile', 'Data Analysis', 'UX'],
-    matchScore: 88,
-    availability: '2 weeks',
-    image: 'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2.25&w=256&h=256&q=80'
-  },
-  {
-    id: 3,
-    name: 'Emily Rodriguez',
-    role: 'UX Designer',
-    experience: '5 years',
-    education: 'B.F.A. Design',
-    location: 'Austin, TX',
-    skills: ['Figma', 'User Research', 'Prototyping', 'Design Systems'],
-    matchScore: 92,
-    availability: '1 month',
-    image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2.25&w=256&h=256&q=80'
-  }
-];
+interface Candidate {
+  id: number;
+  name: string;
+  role: string;
+  experience: string;
+  education: string;
+  location: string;
+  matchScore: number;
+  skills: string[];
+}
 
 export default function TalentPool() {
+  const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [favorites, setFavorites] = useState<number[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [experienceFilter, setExperienceFilter] = useState<string>('');
+  const [roleFilter, setRoleFilter] = useState<string[]>([]);
+  const [availableRoles, setAvailableRoles] = useState<string[]>([]);
+
+  // Fetch candidates with filters
+  useEffect(() => {
+    const controller = new AbortController();
+    const rolesParam = roleFilter.length > 0 ? `&roles=${encodeURIComponent(roleFilter.join(','))}` : '';
+    const experienceParam = experienceFilter ? `&experience=${encodeURIComponent(experienceFilter)}` : '';
+
+    fetch(
+      `http://127.0.0.1:8000/hiring/talent_pool?page=${page}&limit=6&search=${encodeURIComponent(searchTerm)}${rolesParam}${experienceParam}`,
+      {
+        signal: controller.signal,
+      }
+    )
+      .then((res) => res.json())
+      .then((data) => {
+        setCandidates(data.candidates || []);
+        setTotalPages(data.totalPages || 1);
+        // Extract unique roles from candidates for the role filter
+        const roles = [...new Set(data.candidates.map((c: Candidate) => c.role))];
+        setAvailableRoles(roles);
+      })
+      .catch((err) => {
+        if (err.name !== 'AbortError') {
+          console.error('Error fetching talent pool:', err);
+        }
+      });
+
+    return () => controller.abort();
+  }, [searchTerm, page, experienceFilter, roleFilter]);
 
   const toggleFavorite = (id: number) => {
-    setFavorites(prev => 
-      prev.includes(id) ? prev.filter(fid => fid !== id) : [...prev, id]
+    setFavorites((prev) =>
+      prev.includes(id) ? prev.filter((fid) => fid !== id) : [...prev, id]
     );
+  };
+
+  const handleExperienceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setExperienceFilter(e.target.value);
+    setPage(1); // Reset to first page
+  };
+
+  const toggleRoleFilter = (role: string) => {
+    setRoleFilter((prev) =>
+      prev.includes(role) ? prev.filter((r) => r !== role) : [...prev, role]
+    );
+    setPage(1); // Reset to first page
   };
 
   return (
@@ -70,23 +90,64 @@ export default function TalentPool() {
 
       {/* Search and Filters */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6">
-        <div className="flex items-center gap-4">
-          <div className="flex-1 relative">
+        <div className="flex items-center gap-4 flex-wrap">
+          <div className="flex-1 relative min-w-[200px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
             <input
               type="text"
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setPage(1); // Reset to first page
+              }}
               placeholder="Search candidates by name, skills, or location..."
               className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100">
-            <Filter className="h-4 w-4" />
-            Filters
-          </button>
-          <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100">
-            <SlidersHorizontal className="h-4 w-4" />
-            Sort
-          </button>
+          <div className="flex items-center gap-2">
+            <label className="text-sm font-medium text-gray-700">Experience:</label>
+            <select
+              value={experienceFilter}
+              onChange={handleExperienceChange}
+              className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">All Experience Levels</option>
+              <option value="0-2">0-2 Years</option>
+              <option value="3-5">3-5 Years</option>
+              <option value="6+">6+ Years</option>
+            </select>
+          </div>
+          {/* <div className="flex items-center gap-2">
+            <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100">
+              <Filter className="h-4 w-4" />
+              Filters
+            </button>
+            <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100">
+              <SlidersHorizontal className="h-4 w-4" />
+              Sort
+            </button>
+          </div> */}
+        </div>
+        {/* Role Filter Checkboxes */}
+        <div className="mt-4">
+          <div className="text-sm font-medium text-gray-700 mb-2">Filter by Role:</div>
+          <div className="flex flex-wrap gap-4">
+            {availableRoles.length > 0 ? (
+              availableRoles.map((role) => (
+                <label key={role} className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={roleFilter.includes(role)}
+                    onChange={() => toggleRoleFilter(role)}
+                    className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  />
+                  <span className="text-sm text-gray-700">{role}</span>
+                </label>
+              ))
+            ) : (
+              <span className="text-sm text-gray-500">No roles available</span>
+            )}
+          </div>
         </div>
       </div>
 
@@ -97,11 +158,9 @@ export default function TalentPool() {
             <div className="p-6">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-4">
-                  <img
-                    src={candidate.image}
-                    alt={candidate.name}
-                    className="h-12 w-12 rounded-full ring-2 ring-gray-200"
-                  />
+                  <div className="h-10 w-10 bg-gray-300 rounded-full flex items-center justify-center text-xs font-medium text-gray-700">
+                    {candidate.name.split(' ')[0][0] + candidate.name.split(' ')[1][0]}
+                  </div>
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900">{candidate.name}</h3>
                     <p className="text-sm text-gray-600">{candidate.role}</p>
@@ -169,6 +228,25 @@ export default function TalentPool() {
             </div>
           </div>
         ))}
+      </div>
+
+      {/* Pagination */}
+      <div className="flex justify-center gap-4 mt-8">
+        <button
+          onClick={() => setPage((p) => Math.max(p - 1, 1))}
+          disabled={page === 1}
+          className="px-4 py-2 bg-gray-100 rounded hover:bg-gray-200 disabled:opacity-50"
+        >
+          Previous
+        </button>
+        <span className="text-gray-700 font-medium">Page {page} of {totalPages}</span>
+        <button
+          onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
+          disabled={page === totalPages}
+          className="px-4 py-2 bg-gray-100 rounded hover:bg-gray-200 disabled:opacity-50"
+        >
+          Next
+        </button>
       </div>
     </div>
   );
