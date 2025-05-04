@@ -1,5 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import { Search, Filter, SlidersHorizontal, Download, Share2, Star, StarOff, Briefcase, GraduationCap, MapPin } from 'lucide-react';
+import React, { useEffect, useState } from "react";
+import {
+  Search,
+  Filter,
+  SlidersHorizontal,
+  Download,
+  Share2,
+  Star,
+  StarOff,
+  Briefcase,
+  GraduationCap,
+  MapPin,
+} from "lucide-react";
 
 interface Candidate {
   id: number;
@@ -10,26 +21,34 @@ interface Candidate {
   location: string;
   matchScore: number;
   skills: string[];
+  email: string;
 }
 
 export default function TalentPool() {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [favorites, setFavorites] = useState<number[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [experienceFilter, setExperienceFilter] = useState<string>('');
+  const [experienceFilter, setExperienceFilter] = useState<string>("");
   const [roleFilter, setRoleFilter] = useState<string[]>([]);
   const [availableRoles, setAvailableRoles] = useState<string[]>([]);
 
   // Fetch candidates with filters
   useEffect(() => {
     const controller = new AbortController();
-    const rolesParam = roleFilter.length > 0 ? `&roles=${encodeURIComponent(roleFilter.join(','))}` : '';
-    const experienceParam = experienceFilter ? `&experience=${encodeURIComponent(experienceFilter)}` : '';
+    const rolesParam =
+      roleFilter.length > 0
+        ? `&roles=${encodeURIComponent(roleFilter.join(","))}`
+        : "";
+    const experienceParam = experienceFilter
+      ? `&experience=${encodeURIComponent(experienceFilter)}`
+      : "";
 
     fetch(
-      `http://127.0.0.1:8000/hiring/talent_pool?page=${page}&limit=6&search=${encodeURIComponent(searchTerm)}${rolesParam}${experienceParam}`,
+      `http://127.0.0.1:8000/hiring/talent_pool?page=${page}&limit=6&search=${encodeURIComponent(
+        searchTerm
+      )}${rolesParam}${experienceParam}`,
       {
         signal: controller.signal,
       }
@@ -39,12 +58,14 @@ export default function TalentPool() {
         setCandidates(data.candidates || []);
         setTotalPages(data.totalPages || 1);
         // Extract unique roles from candidates for the role filter
-        const roles = [...new Set(data.candidates.map((c: Candidate) => c.role))];
+        const roles = [
+          ...new Set(data.candidates.map((c: Candidate) => c.role)),
+        ];
         setAvailableRoles(roles);
       })
       .catch((err) => {
-        if (err.name !== 'AbortError') {
-          console.error('Error fetching talent pool:', err);
+        if (err.name !== "AbortError") {
+          console.error("Error fetching talent pool:", err);
         }
       });
 
@@ -74,7 +95,9 @@ export default function TalentPool() {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Talent Pool</h1>
-          <p className="mt-2 text-gray-600">Browse and filter top candidates from our talent database</p>
+          <p className="mt-2 text-gray-600">
+            Browse and filter top candidates from our talent database
+          </p>
         </div>
         <div className="flex items-center gap-4">
           <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white rounded-lg border border-gray-200 hover:bg-gray-50">
@@ -105,7 +128,9 @@ export default function TalentPool() {
             />
           </div>
           <div className="flex items-center gap-2">
-            <label className="text-sm font-medium text-gray-700">Experience:</label>
+            <label className="text-sm font-medium text-gray-700">
+              Experience:
+            </label>
             <select
               value={experienceFilter}
               onChange={handleExperienceChange}
@@ -130,7 +155,9 @@ export default function TalentPool() {
         </div>
         {/* Role Filter Checkboxes */}
         <div className="mt-4">
-          <div className="text-sm font-medium text-gray-700 mb-2">Filter by Role:</div>
+          <div className="text-sm font-medium text-gray-700 mb-2">
+            Filter by Role:
+          </div>
           <div className="flex flex-wrap gap-4">
             {availableRoles.length > 0 ? (
               availableRoles.map((role) => (
@@ -154,15 +181,21 @@ export default function TalentPool() {
       {/* Candidates Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {candidates.map((candidate) => (
-          <div key={candidate.id} className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+          <div
+            key={candidate.id}
+            className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
+          >
             <div className="p-6">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-4">
                   <div className="h-10 w-10 bg-gray-300 rounded-full flex items-center justify-center text-xs font-medium text-gray-700">
-                    {candidate.name.split(' ')[0][0] + candidate.name.split(' ')[1][0]}
+                    {candidate.name.split(" ")[0][0] +
+                      candidate.name.split(" ")[1][0]}
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900">{candidate.name}</h3>
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      {candidate.name}
+                    </h3>
                     <p className="text-sm text-gray-600">{candidate.role}</p>
                   </div>
                 </div>
@@ -195,8 +228,12 @@ export default function TalentPool() {
 
               <div className="mt-4">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-gray-700">Match Score</span>
-                  <span className="text-sm font-medium text-blue-600">{candidate.matchScore}%</span>
+                  <span className="text-sm font-medium text-gray-700">
+                    Match Score
+                  </span>
+                  <span className="text-sm font-medium text-blue-600">
+                    {candidate.matchScore}%
+                  </span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div
@@ -207,7 +244,9 @@ export default function TalentPool() {
               </div>
 
               <div className="mt-4">
-                <div className="text-sm font-medium text-gray-700 mb-2">Skills</div>
+                <div className="text-sm font-medium text-gray-700 mb-2">
+                  Skills
+                </div>
                 <div className="flex flex-wrap gap-2">
                   {candidate.skills.map((skill, index) => (
                     <span
@@ -220,10 +259,18 @@ export default function TalentPool() {
                 </div>
               </div>
 
-              <div className="mt-6 pt-4 border-t border-gray-100">
+              <div className="mt-6 pt-4 border-t border-gray-100 space-y-2">
                 <button className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
                   View Profile
                 </button>
+                <a
+                  href={`mailto:${candidate.email}?subject=Opportunity&body=Hi ${candidate.name},`}
+                  className="block text-center w-full bg-gray-100 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Reach Out
+                </a>
               </div>
             </div>
           </div>
@@ -239,7 +286,9 @@ export default function TalentPool() {
         >
           Previous
         </button>
-        <span className="text-gray-700 font-medium">Page {page} of {totalPages}</span>
+        <span className="text-gray-700 font-medium">
+          Page {page} of {totalPages}
+        </span>
         <button
           onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
           disabled={page === totalPages}
