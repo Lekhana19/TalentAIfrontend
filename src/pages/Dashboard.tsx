@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   BarChart3,
   Users,
@@ -165,8 +165,8 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-8">
+    <>
+      <div className="flex items-center justify-between mb-8 sidebar no-print">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">
             Attrition Risk Dashboard
@@ -191,7 +191,10 @@ export default function Dashboard() {
               </button>
             ))}
           </div>
-          <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white rounded-lg border border-gray-200 hover:bg-gray-50">
+          <button
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white rounded-lg border border-gray-200 hover:bg-gray-50"
+            onClick={() => window.print()}
+          >
             <Download className="h-4 w-4" />
             Export
           </button>
@@ -202,346 +205,349 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Key Metrics Section (unchanged for brevity) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {/* Example card for Total Employees */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-blue-50 rounded-lg">
-              <Users className="h-6 w-6 text-blue-600" />
+      <div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {/* Example card for Total Employees */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-blue-50 rounded-lg">
+                <Users className="h-6 w-6 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-600">
+                  Total Employees
+                </p>
+                <h3 className="text-2xl font-bold text-gray-900">1,234</h3>
+                <p className="text-xs text-green-600 flex items-center gap-1 mt-1">
+                  <TrendingUp className="h-3 w-3" />
+                  +5.2% vs last month
+                </p>
+              </div>
             </div>
-            <div>
-              <p className="text-sm font-medium text-gray-600">
-                Total Employees
-              </p>
-              <h3 className="text-2xl font-bold text-gray-900">1,234</h3>
-              <p className="text-xs text-green-600 flex items-center gap-1 mt-1">
-                <TrendingUp className="h-3 w-3" />
-                +5.2% vs last month
-              </p>
+          </div>
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-red-50 rounded-lg">
+                <TrendingDown className="h-6 w-6 text-red-600" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-600">
+                  High Risk Employees
+                </p>
+                <h3 className="text-2xl font-bold text-gray-900">
+                  {employeeRiskStats}
+                </h3>
+                <p className="text-xs text-red-600 flex items-center gap-1 mt-1">
+                  <TrendingUp className="h-3 w-3" />
+                  {employeeRiskPercentageChange >= 0
+                    ? `+${employeeRiskPercentageChange}%`
+                    : `${employeeRiskPercentageChange}%`}{" "}
+                  vs last month
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-green-50 rounded-lg">
+                <BarChart3 className="h-6 w-6 text-green-600" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-600">
+                  Retention Rate
+                </p>
+                <h3 className="text-2xl font-bold text-gray-900">
+                  {employeeRententionStats}%
+                </h3>
+                <p className="text-xs text-green-600 flex items-center gap-1 mt-1">
+                  <TrendingUp className="h-3 w-3" />
+                  +1.8% vs industry avg
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-yellow-50 rounded-lg">
+                <DollarSign className="h-6 w-6 text-yellow-600" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-600">
+                  Replacement Cost
+                </p>
+                <h3 className="text-2xl font-bold text-gray-900">
+                  ${employeeReplacementCostStats.toLocaleString()}
+                </h3>
+                <p className="text-xs text-yellow-600 flex items-center gap-1 mt-1">
+                  <AlertTriangle className="h-3 w-3" />
+                  Potential annual impact
+                </p>
+              </div>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-red-50 rounded-lg">
-              <TrendingDown className="h-6 w-6 text-red-600" />
+
+        {/* Main Charts Section (unchanged) */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          {/* Attrition Trends Chart */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-semibold text-gray-900">
+                Attrition Trends
+              </h2>
+              <button className="text-sm text-gray-500 hover:text-gray-700">
+                <Filter className="h-4 w-4" />
+              </button>
             </div>
-            <div>
-              <p className="text-sm font-medium text-gray-600">
+            <div className="h-80">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={attritionTrends}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Line
+                    type="monotone"
+                    dataKey="rate"
+                    stroke="#0088FE"
+                    name="Our Rate"
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="industry"
+                    stroke="#82ca9d"
+                    name="Industry Avg"
+                    strokeDasharray="3 3"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+          {/* Risk Distribution by Department Chart */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-semibold text-gray-900">
+                Risk Distribution by Department
+              </h2>
+              <button className="text-sm text-gray-500 hover:text-gray-700">
+                <Filter className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="h-80">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={departmentData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="Department" />
+                  <YAxis
+                    label={{
+                      value: "Percentage",
+                      angle: -90,
+                      position: "insideLeft",
+                    }}
+                  />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="Percentage" fill="#0088FE" name="Risk %" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </div>
+
+        {/* Secondary Charts Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          {/* Age & Gender Distribution Chart */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-6">
+              Attrition Risk by Age and Gender
+            </h2>
+            <div className="h-80">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={ageGenderData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="Male" fill="#0088FE" name="Male" />
+                  <Bar dataKey="Female" fill="#00C49F" name="Female" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* Top Risk Factors Section */}
+          {/* Primary Risk Factors PieChart */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-6">
+              Primary Risk Factors
+            </h2>
+            <div className="h-80">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={topRiskFactors}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                    label={({ name, percent }) =>
+                      `${name} ${(percent * 100).toFixed(0)}%`
+                    }
+                  >
+                    {topRiskFactors.map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={COLORS[index % COLORS.length]}
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </div>
+
+        {/* Detailed Sections */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* High Risk Employees Section */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-semibold text-gray-900">
                 High Risk Employees
-              </p>
-              <h3 className="text-2xl font-bold text-gray-900">
-                {employeeRiskStats}
-              </h3>
-              <p className="text-xs text-red-600 flex items-center gap-1 mt-1">
-                <TrendingUp className="h-3 w-3" />
-                {employeeRiskPercentageChange >= 0
-                  ? `+${employeeRiskPercentageChange}%`
-                  : `${employeeRiskPercentageChange}%`}{" "}
-                vs last month
-              </p>
+              </h2>
+              <Link
+                to="/hire-alternatives"
+                className="flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700"
+              >
+                <UserPlus className="h-4 w-4" />
+                Find Alternatives
+              </Link>
+            </div>
+            <div className="space-y-4">
+              {topEmployees.length > 0 ? (
+                topEmployees.map((employee, index) => (
+                  <div
+                    key={index}
+                    className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-4">
+                        {/* Display placeholder or actual employee image if available */}
+                        <div className="h-10 w-10 bg-gray-300 rounded-full flex items-center justify-center text-xs font-medium text-gray-700">
+                          {employee.OriginalEmployeeNumber}
+                        </div>
+                        <div>
+                          <h3 className="font-medium text-gray-900">
+                            {employee.FirstName} {employee.LastName}
+                          </h3>
+                          <p className="text-sm text-gray-600">
+                            Top Factor: {employee.Top_Contributing_Factor}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm font-medium text-red-600">
+                          {employee.Attrition_Risk_Percentage}% Risk
+                        </div>
+                        <p className="text-xs text-gray-500">
+                          Dept: {employee.Department}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="mt-3">
+                      <div className="w-full bg-gray-200 rounded-full h-1.5">
+                        <div
+                          className="h-1.5 rounded-full bg-red-600"
+                          style={{
+                            width: `${employee.Attrition_Risk_Percentage}%`,
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-gray-600">No high risk employees found.</p>
+              )}
+              <button className="w-full mt-4 text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center justify-center gap-2">
+                View All High Risk Employees
+                <ChevronRight className="h-4 w-4" />
+              </button>
             </div>
           </div>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-green-50 rounded-lg">
-              <BarChart3 className="h-6 w-6 text-green-600" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-600">
-                Retention Rate
-              </p>
-              <h3 className="text-2xl font-bold text-gray-900">
-                {employeeRententionStats}%
-              </h3>
-              <p className="text-xs text-green-600 flex items-center gap-1 mt-1">
-                <TrendingUp className="h-3 w-3" />
-                +1.8% vs industry avg
-              </p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-yellow-50 rounded-lg">
-              <DollarSign className="h-6 w-6 text-yellow-600" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-600">
-                Replacement Cost
-              </p>
-              <h3 className="text-2xl font-bold text-gray-900">
-                ${employeeReplacementCostStats.toLocaleString()}
-              </h3>
-              <p className="text-xs text-yellow-600 flex items-center gap-1 mt-1">
-                <AlertTriangle className="h-3 w-3" />
-                Potential annual impact
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      {/* Main Charts Section (unchanged) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-        {/* Attrition Trends Chart */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-semibold text-gray-900">
-              Attrition Trends
+          {/* Retention Strategies Section */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-6">
+              Retention Strategies
             </h2>
-            <button className="text-sm text-gray-500 hover:text-gray-700">
-              <Filter className="h-4 w-4" />
-            </button>
-          </div>
-          <div className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={attritionTrends}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Line
-                  type="monotone"
-                  dataKey="rate"
-                  stroke="#0088FE"
-                  name="Our Rate"
-                />
-                <Line
-                  type="monotone"
-                  dataKey="industry"
-                  stroke="#82ca9d"
-                  name="Industry Avg"
-                  strokeDasharray="3 3"
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-        {/* Risk Distribution by Department Chart */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-semibold text-gray-900">
-              Risk Distribution by Department
-            </h2>
-            <button className="text-sm text-gray-500 hover:text-gray-700">
-              <Filter className="h-4 w-4" />
-            </button>
-          </div>
-          <div className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={departmentData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="Department" />
-                <YAxis
-                  label={{
-                    value: "Percentage",
-                    angle: -90,
-                    position: "insideLeft",
-                  }}
-                />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="Percentage" fill="#0088FE" name="Risk %" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      </div>
-
-      {/* Secondary Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-        {/* Age & Gender Distribution Chart */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-6">
-            Attrition Risk by Age and Gender
-          </h2>
-          <div className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={ageGenderData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="Male" fill="#0088FE" name="Male" />
-                <Bar dataKey="Female" fill="#00C49F" name="Female" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* Top Risk Factors Section */}
-        {/* Primary Risk Factors PieChart */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-6">
-            Primary Risk Factors
-          </h2>
-          <div className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={topRiskFactors}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="value"
-                  label={({ name, percent }) =>
-                    `${name} ${(percent * 100).toFixed(0)}%`
-                  }
-                >
-                  {topRiskFactors.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={COLORS[index % COLORS.length]}
-                    />
-                  ))}
-                </Pie>
-                <Tooltip />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      </div>
-
-      {/* Detailed Sections */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* High Risk Employees Section */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-semibold text-gray-900">
-              High Risk Employees
-            </h2>
-            <Link
-              to="/hire-alternatives"
-              className="flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700"
-            >
-              <UserPlus className="h-4 w-4" />
-              Find Alternatives
-            </Link>
-          </div>
-          <div className="space-y-4">
-            {topEmployees.length > 0 ? (
-              topEmployees.map((employee, index) => (
+            <div className="space-y-4">
+              {retentionStrategies.map((strategy, index) => (
                 <div
                   key={index}
                   className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                 >
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-4">
-                      {/* Display placeholder or actual employee image if available */}
-                      <div className="h-10 w-10 bg-gray-300 rounded-full flex items-center justify-center text-xs font-medium text-gray-700">
-                        {employee.OriginalEmployeeNumber}
-                      </div>
-                      <div>
-                        <h3 className="font-medium text-gray-900">
-                          {employee.FirstName} {employee.LastName}
-                        </h3>
-                        <p className="text-sm text-gray-600">
-                          Top Factor: {employee.Top_Contributing_Factor}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-sm font-medium text-red-600">
-                        {employee.Attrition_Risk_Percentage}% Risk
-                      </div>
-                      <p className="text-xs text-gray-500">
-                        Dept: {employee.Department}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="mt-3">
-                    <div className="w-full bg-gray-200 rounded-full h-1.5">
-                      <div
-                        className="h-1.5 rounded-full bg-red-600"
-                        style={{
-                          width: `${employee.Attrition_Risk_Percentage}%`,
-                        }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <p className="text-gray-600">No high risk employees found.</p>
-            )}
-            <button className="w-full mt-4 text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center justify-center gap-2">
-              View All High Risk Employees
-              <ChevronRight className="h-4 w-4" />
-            </button>
-          </div>
-        </div>
-
-        {/* Retention Strategies Section */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-6">
-            Retention Strategies
-          </h2>
-          <div className="space-y-4">
-            {retentionStrategies.map((strategy, index) => (
-              <div
-                key={index}
-                className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="font-medium text-gray-900">
-                    {strategy.title}
-                  </h3>
-                  <div
-                    className={`px-2.5 py-1 rounded-full text-xs font-medium ${
-                      strategy.impact === "High"
-                        ? "bg-green-50 text-green-700"
-                        : "bg-yellow-50 text-yellow-700"
-                    }`}
-                  >
-                    {strategy.impact} Impact
-                  </div>
-                </div>
-                <p className="text-sm text-gray-600 mb-3">
-                  {strategy.description}
-                </p>
-                <div className="grid grid-cols-2 gap-4 text-xs mb-3">
-                  <div>
-                    <span className="block text-gray-500">Estimated Cost</span>
-                    {strategy.costEstimate}
-                  </div>
-                  <div>
-                    <span className="block text-gray-500">
-                      Affected Employees
-                    </span>
-                    {strategy.affectedEmployees} employees
-                  </div>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {strategy.factors.map((factor, i) => (
-                    <span
-                      key={i}
-                      className="px-2 py-1 text-xs bg-gray-200 text-gray-700 rounded-full"
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="font-medium text-gray-900">
+                      {strategy.title}
+                    </h3>
+                    <div
+                      className={`px-2.5 py-1 rounded-full text-xs font-medium ${
+                        strategy.impact === "High"
+                          ? "bg-green-50 text-green-700"
+                          : "bg-yellow-50 text-yellow-700"
+                      }`}
                     >
-                      {factor}
+                      {strategy.impact} Impact
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-600 mb-3">
+                    {strategy.description}
+                  </p>
+                  <div className="grid grid-cols-2 gap-4 text-xs mb-3">
+                    <div>
+                      <span className="block text-gray-500">
+                        Estimated Cost
+                      </span>
+                      {strategy.costEstimate}
+                    </div>
+                    <div>
+                      <span className="block text-gray-500">
+                        Affected Employees
+                      </span>
+                      {strategy.affectedEmployees} employees
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {strategy.factors.map((factor, i) => (
+                      <span
+                        key={i}
+                        className="px-2 py-1 text-xs bg-gray-200 text-gray-700 rounded-full"
+                      >
+                        {factor}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="mt-3 pt-3 border-t border-gray-200 flex justify-between items-center">
+                    <span className="text-xs text-gray-500">
+                      Timeframe: {strategy.timeframe}
                     </span>
-                  ))}
+                    <button className="text-sm font-medium text-blue-600 hover:text-blue-700">
+                      Implement Strategy
+                    </button>
+                  </div>
                 </div>
-                <div className="mt-3 pt-3 border-t border-gray-200 flex justify-between items-center">
-                  <span className="text-xs text-gray-500">
-                    Timeframe: {strategy.timeframe}
-                  </span>
-                  <button className="text-sm font-medium text-blue-600 hover:text-blue-700">
-                    Implement Strategy
-                  </button>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

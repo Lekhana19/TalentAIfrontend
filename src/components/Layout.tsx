@@ -1,14 +1,31 @@
-import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Home, UserCircle, PieChart, Building2, Bell, Search, ChevronDown, Users, LogOut, Sparkles } from 'lucide-react';
-import ChatbotOverlay from './ChatbotOverlay';
+import React, { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import {
+  Menu,
+  X,
+  Home,
+  UserCircle,
+  PieChart,
+  Building2,
+  Bell,
+  Search,
+  ChevronDown,
+  Users,
+  LogOut,
+  Sparkles,
+} from "lucide-react";
+import ChatbotOverlay from "./ChatbotOverlay";
 
 const sidebarItems = [
-  { icon: Home, label: 'Dashboard', path: '/' },
-  { icon: Users, label: 'Talent Pool', path: '/talent-pool', badge: 'New' },
-  { icon: UserCircle, label: 'Hire Alternatives', path: '/hire-alternatives' },
-  { icon: PieChart, label: 'Project Requirements', path: '/project-requirements' },
-  { icon: Building2, label: 'Departments', path: '/departments' },
+  { icon: Home, label: "Dashboard", path: "/" },
+  { icon: Users, label: "Talent Pool", path: "/talent-pool", badge: "New" },
+  { icon: UserCircle, label: "Hire Alternatives", path: "/hire-alternatives" },
+  {
+    icon: PieChart,
+    label: "Project Requirements",
+    path: "/project-requirements",
+  },
+  { icon: Building2, label: "Departments", path: "/departments" },
 ];
 
 interface LayoutProps {
@@ -23,13 +40,22 @@ export default function Layout({ children }: LayoutProps) {
   return (
     <div className="min-h-screen bg-gray-50/50 flex">
       {/* Sidebar */}
-      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-gradient-to-b from-gray-900 to-gray-800 transform transition-transform duration-200 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 lg:static`}>
+      <div
+        className={`no-print fixed inset-y-0 left-0 z-50 w-64 bg-gradient-to-b from-gray-900 to-gray-800 transform transition-transform duration-200 ease-in-out ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } lg:translate-x-0 lg:static`}
+      >
         <div className="flex items-center justify-between h-16 px-6 bg-gray-900 bg-opacity-50 backdrop-blur-sm">
           <div className="flex items-center gap-2">
             <Sparkles className="h-8 w-8 text-blue-400" />
-            <span className="text-white font-bold text-xl tracking-tight">Talent AI</span>
+            <span className="text-white font-bold text-xl tracking-tight">
+              Talent AI
+            </span>
           </div>
-          <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-gray-400 hover:text-white">
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="lg:hidden text-gray-400 hover:text-white"
+          >
             <X className="h-6 w-6" />
           </button>
         </div>
@@ -50,8 +76,8 @@ export default function Layout({ children }: LayoutProps) {
               to={item.path}
               className={`flex items-center justify-between px-4 py-3 text-sm font-medium rounded-xl mb-1 transition-all duration-150 ${
                 location.pathname === item.path
-                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/25' 
-                  : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                  ? "bg-blue-600 text-white shadow-lg shadow-blue-500/25"
+                  : "text-gray-400 hover:bg-gray-800 hover:text-white"
               }`}
             >
               <div className="flex items-center gap-3">
@@ -98,12 +124,14 @@ export default function Layout({ children }: LayoutProps) {
                       alt="User avatar"
                     />
                     <div className="hidden md:block">
-                      <div className="text-sm font-medium text-gray-700">Alex Morgan</div>
+                      <div className="text-sm font-medium text-gray-700">
+                        Alex Morgan
+                      </div>
                       <div className="text-xs text-gray-500">HR Director</div>
                     </div>
                     <ChevronDown className="h-4 w-4 text-gray-400" />
                   </button>
-                  
+
                   {userMenuOpen && (
                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1">
                       <button
@@ -125,9 +153,7 @@ export default function Layout({ children }: LayoutProps) {
         </nav>
 
         {/* Page Content */}
-        <div className="max-w-[90rem] mx-auto p-8">
-          {children}
-        </div>
+        <div className="max-w-[90rem] mx-auto p-8">{children}</div>
 
         {/* Chatbot Overlay */}
         <ChatbotOverlay />
