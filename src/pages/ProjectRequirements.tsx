@@ -1,34 +1,45 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { Upload, FileText, X, Download, Share2 } from 'lucide-react';
+import { Upload, FileText, X } from 'lucide-react';
 
 export default function ProjectRequirements() {
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-  const [requirements, setRequirements] = useState<any>(() => {
+  const [uploadedFile, setUploadedFile] = useState(null);
+  const [requirements, setRequirements] = useState(() => {
     const saved = localStorage.getItem("projectRequirements");
     return saved ? JSON.parse(saved) : null;
   });
+
   useEffect(() => {
     if (requirements) {
       localStorage.setItem("projectRequirements", JSON.stringify(requirements));
+    } else {
+      localStorage.removeItem("projectRequirements");
     }
   }, [requirements]);
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
+  const onDrop = useCallback((acceptedFiles) => {
     const file = acceptedFiles[0];
     setUploadedFile(file);
 
     const formData = new FormData();
     formData.append('file', file);
 
-    fetch("http://127.0.0.1:8000/upload_project_pdf", {
+    fetch("http://127.0.0.1:8000/project/upload_project_pdf", {
       method: "POST",
       body: formData
     })
       .then((res) => res.json())
       .then((data) => setRequirements(data))
-      .catch((err) => console.error("Upload failed:", err));
+      .catch((err) => {
+        console.error("Upload failed:", err);
+        setUploadedFile(null);
+      });
   }, []);
+
+  const clearUpload = () => {
+    setUploadedFile(null);
+    setRequirements(null);
+  };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -47,23 +58,12 @@ export default function ProjectRequirements() {
           <h1 className="text-3xl font-bold text-gray-900">Project Requirements</h1>
           <p className="mt-2 text-gray-600">Upload project documents to find matching talent</p>
         </div>
-        <div className="flex items-center gap-4">
-          <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white rounded-lg border border-gray-200 hover:bg-gray-50">
-            <Download className="h-4 w-4" />
-            Export
-          </button>
-          <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white rounded-lg border border-gray-200 hover:bg-gray-50">
-            <Share2 className="h-4 w-4" />
-            Share
-          </button>
-        </div>
       </div>
-  
+
       <div className="grid grid-cols-1 gap-8">
         {/* Upload Section */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Upload Requirements</h2>
-  
           <div
             {...getRootProps()}
             className={`border-2 border-dashed rounded-xl p-8 text-center ${
@@ -81,7 +81,7 @@ export default function ProjectRequirements() {
               Supported formats: PDF, DOC, DOCX
             </p>
           </div>
-  
+
           {/* Uploaded File Preview */}
           {uploadedFile && (
             <div className="mt-6">
@@ -98,28 +98,32 @@ export default function ProjectRequirements() {
                 </div>
                 <button
                   className="text-gray-400 hover:text-gray-500"
-                  onClick={() => {
-                    setUploadedFile(null);
-                    setRequirements(null);
-                  }}
+                  onClick={clearUpload}
+                  aria-label="Remove uploaded file"
                 >
                   <X className="h-5 w-5" />
                 </button>
               </div>
+              <button
+                className="mt-4 w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 text-sm font-medium"
+                onClick={clearUpload}
+                aria-label="Clear uploaded file and requirements"
+              >
+                Clear
+              </button>
             </div>
           )}
         </div>
-  
+
         {/* Results Section */}
         {requirements && (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Team Composition & Suggestions</h2>
-  
             <div className="space-y-6">
               <div>
                 <h3 className="text-sm font-medium text-gray-700 mb-3">Required Skills</h3>
                 <div className="flex flex-wrap gap-2">
-                  {requirements.required_skills.map((skill: string, index: number) => (
+                  {requirements.required_skills.map((skill, index) => (
                     <span
                       key={index}
                       className="px-2.5 py-1 text-xs font-medium bg-blue-50 text-blue-700 rounded-full"
@@ -129,11 +133,11 @@ export default function ProjectRequirements() {
                   ))}
                 </div>
               </div>
-  
+
               <div>
                 <h3 className="text-sm font-medium text-gray-700 mb-3">Team Composition</h3>
                 <div className="space-y-3">
-                  {requirements.team_plan.map((role: any, index: number) => (
+                  {requirements.team_plan.map((role, index) => (
                     <div
                       key={index}
                       className="flex flex-col gap-1 p-3 bg-gray-50 rounded-lg"
@@ -145,34 +149,47 @@ export default function ProjectRequirements() {
                         </div>
                         <div className="text-sm font-medium text-blue-600">{role.count_needed} needed</div>
                       </div>
-  
-                      {/* Matching candidates */}
-                      {/* Matching candidates as cards */}
-                      <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {role.matching_candidates.map((cand: any, idx: number) => (
-                          <div
-                            key={idx}
-                            className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm flex flex-col justify-between"
-                          >
-                            <div>
-                              <h4 className="text-sm font-semibold text-gray-900">{cand.name}</h4>
-                              <p className="text-xs text-gray-500">{cand.role} • {cand.experience}</p>
-                              <p className="text-xs text-gray-400 mt-1">{cand.location}</p>
-                            </div>
-                            <div className="mt-2 flex flex-wrap gap-1">
-                              {cand.skills.map((skill: string, i: number) => (
-                                <span
-                                  key={i}
-                                  className="text-[10px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full"
-                                >
-                                  {skill}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
 
+                      {/* Matching candidates as carousel */}
+                      <div className="mt-3 relative">
+                        <div className="flex overflow-x-auto hide-scrollbar space-x-4 pb-4">
+                          {role.matching_candidates.map((cand, idx) => (
+                            <div
+                              key={idx}
+                              className="min-w-[250px] max-w-[400px] flex-shrink-0 border border-gray-200 rounded-lg shadow p-4 bg-white"
+                            >
+                              <div className="flex items-center gap-3 mb-3">
+                                <div className="h-10 w-10 bg-gray-300 rounded-full flex items-center justify-center text-xs font-medium text-gray-700">
+                                  {cand.name.split(" ")[0][0] + " " + cand.name.split(" ")[1][0]}
+                                </div>
+                                <div>
+                                  <h4 className="text-sm font-semibold text-gray-900">{cand.name}</h4>
+                                  <p className="text-xs text-gray-600">{cand.role}</p>
+                                </div>
+                              </div>
+                              <p className="text-xs text-gray-500 mb-2">{cand.experience}</p>
+                              <div className="flex flex-wrap gap-1">
+                                {cand.skills.slice(0, 5).map((skill, i) => (
+                                  <span
+                                    key={i}
+                                    className="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full"
+                                  >
+                                    {skill}
+                                  </span>
+                                ))}
+                              </div>
+                              <a
+                                href={`mailto:${cand.email}?subject=Opportunity&body=Hi ${cand.name},`}
+                                className="block text-center w-full bg-blue-600 text-white py-2 px-4 mt-4 rounded-lg"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                Reach Out
+                              </a>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -183,5 +200,4 @@ export default function ProjectRequirements() {
       </div>
     </div>
   );
-  
 }

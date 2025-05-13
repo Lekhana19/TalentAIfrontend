@@ -18,12 +18,13 @@ import ChatbotOverlay from "./ChatbotOverlay";
 
 const sidebarItems = [
   { icon: Home, label: "Dashboard", path: "/" },
-  { icon: Users, label: "Talent Pool", path: "/talent-pool", badge: "New" },
-  { icon: UserCircle, label: "Hire Alternatives", path: "/hire-alternatives" },
+  { icon: Users, label: "Talent Pool", path: "/talent-pool" },
+  { icon: UserCircle, label: "Recommended Hiring", path: "/hire-alternatives" },
   {
     icon: PieChart,
     label: "Project Requirements",
     path: "/project-requirements",
+    badge: "New"
   },
   { icon: Building2, label: "Departments", path: "/departments" },
 ];

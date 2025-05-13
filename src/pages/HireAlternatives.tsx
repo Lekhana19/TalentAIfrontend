@@ -61,7 +61,7 @@ export default function HireAlternatives() {
               {entry.alternatives.map((alt, index) => (
                 <div
                   key={index}
-                  className="min-w-[250px] flex-shrink-0 border border-gray-200 rounded-lg shadow p-4 bg-white"
+                  className="min-w-[250px] max-w-[400px]  flex-shrink-0 border border-gray-200 rounded-lg shadow p-4 bg-white"
                 >
                   <div className="flex items-center gap-3 mb-3">
                     
@@ -72,7 +72,7 @@ export default function HireAlternatives() {
                       <h3 className="font-semibold text-gray-900">{alt.name}</h3>
                       <p className="text-xs text-gray-600">{alt.role}</p>
                     </div>
-                    <Star className="h-4 w-4 text-yellow-500 ml-auto" />
+                    {/* <Star className="h-4 w-4 text-yellow-500 ml-auto" /> */}
                   </div>
                   <p className="text-xs text-gray-500 mb-2">{alt.experience}</p>
                   <div className="mb-2 text-sm text-blue-600 font-medium">Match Score: {alt.matchScore}%</div>
@@ -83,6 +83,15 @@ export default function HireAlternatives() {
                       </span>
                     ))}
                   </div>
+                  <a
+                  
+                  href={`mailto:${alt.email}?subject=Opportunity&body=Hi ${alt.name},`}
+                  className="block text-center w-full bg-blue-600 text-white py-2 px-4 mt-4 rounded-lg"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Reach Out
+                </a>
                 </div>
               ))}
             </div>

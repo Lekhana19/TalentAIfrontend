@@ -100,14 +100,14 @@ export default function TalentPool() {
           </p>
         </div>
         <div className="flex items-center gap-4">
-          <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white rounded-lg border border-gray-200 hover:bg-gray-50">
+          {/* <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white rounded-lg border border-gray-200 hover:bg-gray-50">
             <Download className="h-4 w-4" />
             Export
-          </button>
-          <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white rounded-lg border border-gray-200 hover:bg-gray-50">
+          </button> */}
+          {/* <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white rounded-lg border border-gray-200 hover:bg-gray-50">
             <Share2 className="h-4 w-4" />
             Share
-          </button>
+          </button> */}
         </div>
       </div>
 
@@ -199,7 +199,7 @@ export default function TalentPool() {
                     <p className="text-sm text-gray-600">{candidate.role}</p>
                   </div>
                 </div>
-                <button
+                {/* <button
                   onClick={() => toggleFavorite(candidate.id)}
                   className="text-gray-400 hover:text-yellow-500"
                 >
@@ -208,7 +208,7 @@ export default function TalentPool() {
                   ) : (
                     <StarOff className="h-5 w-5" />
                   )}
-                </button>
+                </button> */}
               </div>
 
               <div className="space-y-3">
@@ -226,7 +226,7 @@ export default function TalentPool() {
                 </div>
               </div>
 
-              <div className="mt-4">
+              {/* <div className="mt-4">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-medium text-gray-700">
                     Match Score
@@ -241,7 +241,7 @@ export default function TalentPool() {
                     style={{ width: `${candidate.matchScore}%` }}
                   />
                 </div>
-              </div>
+              </div> */}
 
               <div className="mt-4">
                 <div className="text-sm font-medium text-gray-700 mb-2">
@@ -260,12 +260,12 @@ export default function TalentPool() {
               </div>
 
               <div className="mt-6 pt-4 border-t border-gray-100 space-y-2">
-                <button className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+                {/* <button className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
                   View Profile
-                </button>
+                </button> */}
                 <a
                   href={`mailto:${candidate.email}?subject=Opportunity&body=Hi ${candidate.name},`}
-                  className="block text-center w-full bg-gray-100 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors"
+                  className="block text-center w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
